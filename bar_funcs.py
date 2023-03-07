@@ -4,19 +4,17 @@ from numpy import *
 import numpy as np
 import h5py
 
-# x_disk = np.array(f['PartType2']['Coordinates'][:,0])
-# y_disk = np.array(f['PartType2']['Coordinates'][:,1])
-# m = np.array(f['PartType2']['Masses'])
-
-def shift_com(m, x, y):
+def shift_com(m, x, y, z):
     
     cm_x_disk = sum(m*x)/sum(m)
     cm_y_disk = sum(m*y)/sum(m)
+    cm_z_disk = sum(m*z)/sum(m)
 
     x_new_disk = x - cm_x_disk
     y_new_disk = y - cm_y_disk
+    z_new_disk = z - cm_z_disk
     
-    return x_new_disk, y_new_disk
+    return x_new_disk, y_new_disk, z_new_disk
 
 def shift_com_2(m_disk, x_disk, y_disk, z_disk, m_halo, x_halo, y_halo, z_halo):
 
@@ -122,4 +120,20 @@ def v_circ(m_disk, m_halo, x_new_disk, y_new_disk, z_new_disk, x_new_halo, y_new
         v_c[i] = (np.sqrt(G*M_r[i]/r[i]))
     
     return v_c_disk, v_c_halo, v_c, r
-        
+
+def S(m_up, x_up, y_up, m_down, x_down, y_down, Rmax, Nbins, n_snapshots):
+    #S = |A2(z>0) - A2(z<0)|
+    
+    a2_up = bar_strength(m_up, x_up, y_up, Rmax, Nbins, n_snapshots)
+    a2_down = bar_strength(m_down, x_down, y_down, Rmax, Nbins, n_snapshots)
+    
+    S = abs(a2_up - a2_down)
+    
+    return S
+
+def time_buckling(S1, time1):
+    maxS = max(S1) 
+    pos_max = np.where(S1 == maxS)
+    time_max = float(time1[pos_max])
+    
+    return time_max
