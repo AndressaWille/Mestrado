@@ -6,15 +6,16 @@ import h5py
 
 def shift_com(m, x, y, z):
     
-    cm_x_disk = sum(m*x)/sum(m)
-    cm_y_disk = sum(m*y)/sum(m)
-    cm_z_disk = sum(m*z)/sum(m)
+    cm_x = sum(m*x)/sum(m)
+    cm_y = sum(m*y)/sum(m)
+    cm_z = sum(m*z)/sum(m)
 
-    x_new_disk = x - cm_x_disk
-    y_new_disk = y - cm_y_disk
-    z_new_disk = z - cm_z_disk
+    x_new = x - cm_x
+    y_new = y - cm_y
+    z_new = z - cm_z
     
-    return x_new_disk, y_new_disk, z_new_disk
+    return x_new, y_new, z_new
+
 
 def shift_com_2(m_disk, x_disk, y_disk, z_disk, m_halo, x_halo, y_halo, z_halo):
 
@@ -121,6 +122,34 @@ def v_circ(m_disk, m_halo, x_new_disk, y_new_disk, z_new_disk, x_new_halo, y_new
     
     return v_c_disk, v_c_halo, v_c, r
 
+
+def v_circ_comp(m, x, y, z, Rmax, Nbins):
+    
+    G = 43007.1
+    R = np.sqrt(x**2 + y**2 + z**2)
+
+    M_r = np.empty(Nbins)
+    r = np.empty(Nbins)
+    v_c = np.empty(Nbins)
+
+    Rmin = 0.0
+    Rmax = Rmax
+    Nbins = Nbins
+    dR = (Rmax - Rmin)/Nbins
+    
+    for i in range(0, Nbins):
+        R1 = i * dR
+        R2 = R1 + dR
+        r[i] = R2
+
+        cond = np.argwhere(R<=R2).flatten()
+        M_r[i] = sum(m[cond])
+
+        v_c[i] = (np.sqrt(G*M_r[i]/r[i]))
+    
+    return v_c, r, M_r
+
+
 def S(m_up, x_up, y_up, m_down, x_down, y_down, Rmax, Nbins, n_snapshots):
     #S = |A2(z>0) - A2(z<0)|
     
@@ -130,6 +159,7 @@ def S(m_up, x_up, y_up, m_down, x_down, y_down, Rmax, Nbins, n_snapshots):
     S = abs(a2_up - a2_down)
     
     return S
+
 
 def time_buckling(S1, time1):
     maxS = max(S1) 
