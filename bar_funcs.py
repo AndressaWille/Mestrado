@@ -4,6 +4,71 @@ from numpy import *
 import numpy as np
 import h5py
 
+def theta_phi(N, x, y, z, vx, vy, vz, m):
+    Ltot = [0, 0, 0]
+    
+    for k in range (0, N):
+        R = [(x[k]), (y[k]), (z[k])]
+        px = (m[k] * vx[k])
+        py = (m[k] * vy[k])
+        pz = (m[k] * vz[k])
+        p = [px, py, pz]
+        L = np.cross(R, p)
+        Ltot = Ltot + L
+        
+    Lx = Ltot[0]
+    Ly = Ltot[1]
+    Lz = Ltot[2]
+    
+    theta = np.arctan2(Ly, Lx)
+    
+    Lxy = np.sqrt(Lx**2 + Ly**2)
+    
+    phi = np.arctan2(Lxy, Lz)
+    
+    return theta, phi
+   
+    
+def angular_momentum_1(N, x, y, vx, vy, theta): 
+        
+    for k in range (0, N):
+        x_2 = np.cos(-theta)*x[k] - np.sin(-theta)*y[k]
+        y_2 = np.sin(-theta)*x[k] + np.cos(-theta)*y[k]
+        x[k] = x_2 
+        y[k] = y_2 
+        
+        vx_2 = np.cos(-theta)*vx[k] - np.sin(-theta)*vy[k]
+        vy_2 = np.sin(-theta)*vx[k] + np.cos(-theta)*vy[k]
+        vx[k] = vx_2 
+        vy[k] = vy_2
+        
+    return x, y, vx, vy
+
+
+def angular_momentum_2(N, x, z, vx, vz, phi):
+    
+    for k in range (0, N):
+        z_2 = np.cos(-phi)*z[k] - np.sin(-phi)*x[k]
+        x_3 = np.sin(-phi)*z[k] + np.cos(-phi)*x[k]
+        z[k] = z_2
+        x[k] = x_3 
+         
+        vz_2 = np.cos(-phi)*vz[k] - np.sin(-phi)*vx[k]
+        vx_3 = np.sin(-phi)*vz[k] + np.cos(-phi)*vx[k]
+        vz[k] = vz_2
+        vx[k] = vx_3
+        
+    return x, z, vx, vz
+
+
+def com(m, x, y, z):
+    
+    cm_x = sum(m*x)/sum(m)
+    cm_y = sum(m*y)/sum(m)
+    cm_z = sum(m*z)/sum(m)
+    
+    return cm_x, cm_y, cm_z
+
 def shift_com(m, x, y, z):
     
     cm_x = sum(m*x)/sum(m)
