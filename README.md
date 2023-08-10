@@ -1,2 +1,3 @@
 # Mestrado
-Notebooks e códigos criados durante o mestrado na UTFPR.
+
+Esse repositório não está sendo mais atualizado. Veja o repositório "astronomia".
